@@ -50,18 +50,29 @@ export default function HomePage() {
     },
   });
 
-  // Show OAuth result toast
+  // Update useEffect for OAuth result toast
   React.useEffect(() => {
     const params = new URLSearchParams(searchParams);
+    const provider = params.get("provider") || "the service";
+    const reason = params.get("reason");
+
     if (params.get("oauth") === "success") {
       toast({
         title: "Connected successfully",
-        description: "Your Monday.com account has been connected.",
+        description: `Your ${provider} account has been connected.`,
       });
     } else if (params.get("oauth") === "error") {
+      let errorMessage = `Failed to connect your ${provider} account.`;
+
+      if (reason === "unauthorized") {
+        errorMessage = `This app needs to be enabled for your ${provider} workspace. Please contact your workspace admin or check the app settings in the developer console.`;
+      } else if (reason === "token_storage") {
+        errorMessage = `There was an error storing your ${provider} credentials. Please try again.`;
+      }
+
       toast({
         title: "Connection failed",
-        description: "Failed to connect your Monday.com account.",
+        description: errorMessage,
         variant: "destructive",
       });
     }

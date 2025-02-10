@@ -17,6 +17,9 @@ export function registerRoutes(app: Express): Server {
     callbackURL: `${process.env.REPLIT_DOMAINS?.split(",")[0]}/api/oauth/asana/callback`,
   }, async (accessToken, refreshToken, _profile, done) => {
     try {
+      if (!accessToken) {
+        return done(new Error("No access token received from Asana"));
+      }
       done(null, { accessToken, refreshToken });
     } catch (error) {
       done(error);
@@ -47,9 +50,17 @@ export function registerRoutes(app: Express): Server {
   // Asana OAuth endpoints
   app.get("/api/oauth/asana", passport.authenticate("asana"));
 
-  app.get("/api/oauth/asana/callback", passport.authenticate("asana", { failureRedirect: "/?oauth=error" }), 
+  // Update error handling in Asana callback
+  app.get("/api/oauth/asana/callback", passport.authenticate("asana", { 
+    failureRedirect: "/?oauth=error&provider=asana&reason=unauthorized",
+    failureMessage: true 
+  }), 
     async (req: any, res) => {
       try {
+        if (!req.authInfo?.accessToken) {
+          throw new Error("No access token received from Asana");
+        }
+
         await storage.createToken({
           userId: req.user.id,
           provider: "asana",
@@ -59,9 +70,10 @@ export function registerRoutes(app: Express): Server {
           active: true,
         });
 
-        res.redirect("/?oauth=success");
+        res.redirect("/?oauth=success&provider=asana");
       } catch (error) {
-        res.redirect("/?oauth=error");
+        console.error("Asana OAuth error:", error);
+        res.redirect("/?oauth=error&provider=asana&reason=token_storage");
       }
     }
   );
