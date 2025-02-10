@@ -10,8 +10,7 @@ import {
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Token } from "@shared/schema";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { BsMicrosoftTeams } from "react-icons/bs"; // Using a Microsoft Teams icon as a placeholder
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2, Globe } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import {
@@ -32,10 +31,12 @@ export default function HomePage() {
   const { toast } = useToast();
   const [searchParams] = useLocation();
 
+  // Fetch user's active tokens
   const { data: tokens, isLoading } = useQuery<Token[]>({
     queryKey: ["/api/tokens"],
   });
 
+  // Mutation for revoking a token
   const deleteMutation = useMutation({
     mutationFn: async (tokenId: number) => {
       await apiRequest("DELETE", `/api/tokens/${tokenId}`);
@@ -96,7 +97,7 @@ export default function HomePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <BsMicrosoftTeams className="h-5 w-5" />
+                  <Globe className="h-5 w-5" />
                   Monday.com
                 </CardTitle>
                 <CardDescription>
@@ -134,7 +135,7 @@ export default function HomePage() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           {token.provider === "monday" && (
-                            <BsMicrosoftTeams className="h-5 w-5" />
+                            <Globe className="h-5 w-5" />
                           )}
                           <CardTitle className="capitalize">
                             {token.provider}
