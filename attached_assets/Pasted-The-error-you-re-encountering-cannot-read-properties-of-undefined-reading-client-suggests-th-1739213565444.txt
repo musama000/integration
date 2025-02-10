@@ -1,0 +1,41 @@
+The error you're encountering, "cannot read properties of undefined, reading('client')", suggests that the `asana` module is not being imported or used correctly. Here are a few steps to troubleshoot and resolve this issue:
+
+1. **Ensure the Asana SDK is Installed:**
+   Make sure that the Asana Node.js client library is installed in your project. You can install it using npm or yarn:
+
+   ```bash
+   npm install asana
+   ```
+
+   or
+
+   ```bash
+   yarn add asana
+   ```
+
+2. **Check the Import Statement:**
+   Ensure that the `asana` module is being imported correctly. In your code, you're using `require('asana')`, which is fine if you're using CommonJS modules. However, if your project is set up to use ES modules, you should use the `import` statement:
+
+   ```javascript
+   import asana from 'asana';
+   ```
+
+   If you're using a module bundler like Webpack or Babel, make sure it's configured to handle CommonJS modules if you're sticking with `require`.
+
+3. **Verify the Asana Client Initialization:**
+   Double-check that the Asana client is being initialized correctly. The error might occur if `asana.Client.create()` is not returning a valid client object. Ensure that `asanaToken.accessToken` is a valid token and that the `asana` module is correctly imported.
+
+4. **Debugging:**
+   Add some console logs to check the values and flow of your code:
+
+   ```javascript
+   console.log("Asana module:", asana);
+   console.log("Asana token:", asanaToken);
+   ```
+
+   This will help you verify if the `asana` module is imported correctly and if the token is being retrieved as expected.
+
+5. **Error Handling:**
+   Ensure that your error handling is robust. If `asana.Client.create()` or any other part of the code is failing, it should be caught by your `try-catch` block, and the error message should be displayed in the toast.
+
+By following these steps, you should be able to identify and fix the issue with the Asana client initialization. If the problem persists, consider checking the Asana SDK documentation or any recent changes in the SDK that might affect how the client is initialized.
