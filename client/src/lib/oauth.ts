@@ -1,7 +1,7 @@
 import { apiRequest } from "./queryClient";
 import { Token } from "@shared/schema";
 
-export type OAuthProvider = "monday";
+export type OAuthProvider = "monday" | "asana";
 
 interface OAuthConfig {
   authorizationUrl: string;
@@ -13,6 +13,10 @@ export const OAUTH_CONFIGS: Record<OAuthProvider, OAuthConfig> = {
     authorizationUrl: "https://auth.monday.com/oauth2/authorize",
     scopes: ["me:read", "boards:read"],
   },
+  asana: {
+    authorizationUrl: "https://app.asana.com/-/oauth_authorize",
+    scopes: ["default"],
+  },
 };
 
 /**
@@ -21,14 +25,16 @@ export const OAUTH_CONFIGS: Record<OAuthProvider, OAuthConfig> = {
 export function initiateOAuthFlow(provider: OAuthProvider) {
   // Get domain from environment
   const domain = process.env.REPLIT_DOMAINS?.split(",")[0];
-  
+
   if (!domain) {
     throw new Error("No domain configured");
   }
 
   const config = OAUTH_CONFIGS[provider];
   const params = new URLSearchParams({
-    client_id: process.env.MONDAY_CLIENT_ID || "",
+    client_id: provider === "monday" 
+      ? process.env.MONDAY_CLIENT_ID || ""
+      : process.env.ASANA_CLIENT_ID || "",
     redirect_uri: `${domain}/api/oauth/${provider}/callback`,
     scope: config.scopes.join(" "),
     response_type: "code",
@@ -74,6 +80,7 @@ export function formatTokenExpiry(expiresAt: string | null): string {
 export function getProviderDisplayName(provider: string): string {
   const names: Record<string, string> = {
     monday: "Monday.com",
+    asana: "Asana",
   };
   return names[provider] || provider;
 }

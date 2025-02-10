@@ -10,7 +10,7 @@ import {
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Token } from "@shared/schema";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Loader2, Trash2, Globe } from "lucide-react";
+import { Loader2, Trash2, Globe, Layout } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import {
@@ -94,25 +94,47 @@ export default function HomePage() {
         <div className="grid gap-6">
           <section>
             <h2 className="text-xl font-semibold mb-4">Available Integrations</h2>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-5 w-5" />
-                  Monday.com
-                </CardTitle>
-                <CardDescription>
-                  Connect your Monday.com workspace to manage boards and items
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  asChild
-                  className="w-full sm:w-auto"
-                >
-                  <a href="/api/oauth/monday">Connect Monday.com</a>
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="grid gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="h-5 w-5" />
+                    Monday.com
+                  </CardTitle>
+                  <CardDescription>
+                    Connect your Monday.com workspace to manage boards and items
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    asChild
+                    className="w-full sm:w-auto"
+                  >
+                    <a href="/api/oauth/monday">Connect Monday.com</a>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Layout className="h-5 w-5" />
+                    Asana
+                  </CardTitle>
+                  <CardDescription>
+                    Connect your Asana workspace to manage projects and tasks
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    asChild
+                    className="w-full sm:w-auto"
+                  >
+                    <a href="/api/oauth/asana">Connect Asana</a>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </section>
 
           <section>
