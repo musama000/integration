@@ -9,12 +9,19 @@ export function registerRoutes(app: Express): Server {
   setupAuth(app);
 
   // Configure Asana OAuth2 strategy
+  const domain = process.env.REPLIT_DOMAINS?.split(",")[0];
+  if (!domain) {
+    throw new Error("No domain configured");
+  }
+
+  const redirectUri = `https://${domain}/api/oauth/asana/callback`;
+
   passport.use('asana', new OAuth2Strategy({
     authorizationURL: 'https://app.asana.com/-/oauth_authorize',
     tokenURL: 'https://app.asana.com/-/oauth_token',
     clientID: process.env.ASANA_CLIENT_ID!,
     clientSecret: process.env.ASANA_CLIENT_SECRET!,
-    callbackURL: `${process.env.REPLIT_DOMAINS?.split(",")[0]}/api/oauth/asana/callback`,
+    callbackURL: redirectUri,
   }, async (accessToken, refreshToken, _profile, done) => {
     try {
       if (!accessToken) {
@@ -48,7 +55,10 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Asana OAuth endpoints
-  app.get("/api/oauth/asana", passport.authenticate("asana"));
+  app.get("/api/oauth/asana", (req, res, next) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    passport.authenticate("asana")(req, res, next);
+  });
 
   // Update error handling in Asana callback
   app.get("/api/oauth/asana/callback", passport.authenticate("asana", { 
