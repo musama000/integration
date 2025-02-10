@@ -22,14 +22,16 @@ export function registerRoutes(app: Express): Server {
     clientID: process.env.ASANA_CLIENT_ID!,
     clientSecret: process.env.ASANA_CLIENT_SECRET!,
     callbackURL: redirectUri,
+    state: true, // Enable state parameter for CSRF protection
   }, async (accessToken, refreshToken, _profile, done) => {
     try {
       if (!accessToken) {
         return done(new Error("No access token received from Asana"));
       }
-      done(null, { accessToken, refreshToken });
+      // Pass only the tokens
+      return done(null, { accessToken, refreshToken });
     } catch (error) {
-      done(error);
+      return done(error);
     }
   }));
 
@@ -57,25 +59,30 @@ export function registerRoutes(app: Express): Server {
   // Asana OAuth endpoints
   app.get("/api/oauth/asana", (req, res, next) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
-    passport.authenticate("asana")(req, res, next);
+    passport.authenticate("asana", {
+      session: false // Don't serialize the OAuth state
+    })(req, res, next);
   });
 
-  // Update error handling in Asana callback
-  app.get("/api/oauth/asana/callback", passport.authenticate("asana", { 
-    failureRedirect: "/?oauth=error&provider=asana&reason=unauthorized",
-    failureMessage: true 
-  }), 
+  app.get("/api/oauth/asana/callback", 
+    passport.authenticate("asana", { 
+      session: false,
+      failureRedirect: "/?oauth=error&provider=asana&reason=unauthorized"
+    }), 
     async (req: any, res) => {
       try {
-        if (!req.authInfo?.accessToken) {
+        // The OAuth tokens are passed directly in req.user by the strategy
+        const { accessToken, refreshToken } = req.user;
+
+        if (!accessToken) {
           throw new Error("No access token received from Asana");
         }
 
         await storage.createToken({
           userId: req.user.id,
           provider: "asana",
-          accessToken: req.authInfo.accessToken,
-          refreshToken: req.authInfo.refreshToken,
+          accessToken: accessToken,
+          refreshToken: refreshToken || null,
           expiresAt: null, // Asana tokens don't expire
           active: true,
         });
