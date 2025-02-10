@@ -1,6 +1,8 @@
+
 import { Button } from "./button";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import * as asana from 'asana';
 
 export function CreateAsanaTask() {
   const { toast } = useToast();
@@ -22,7 +24,6 @@ export function CreateAsanaTask() {
         return;
       }
 
-      import * as asana from 'asana';
       const client = asana.Client.create().useAccessToken(asanaToken.accessToken);
 
       // First get the workspace
