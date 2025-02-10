@@ -22,7 +22,7 @@ export function CreateAsanaTask() {
         return;
       }
 
-      const asana = require('asana');
+      import * as asana from 'asana';
       const client = asana.Client.create().useAccessToken(asanaToken.accessToken);
 
       // First get the workspace
