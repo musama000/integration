@@ -28,3 +28,4 @@ export const insertTokenSchema = createInsertSchema(tokens);
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Token = typeof tokens.$inferSelect;
+export type InsertToken = z.infer<typeof insertTokenSchema>;
