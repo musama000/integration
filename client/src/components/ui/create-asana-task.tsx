@@ -1,4 +1,3 @@
-
 import { Button } from "./button";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -45,10 +44,11 @@ export function CreateAsanaTask() {
         title: "Success",
         description: "Task created in Asana"
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Asana API Error:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to create task",
         variant: "destructive"
       });
     } finally {
@@ -57,8 +57,12 @@ export function CreateAsanaTask() {
   };
 
   return (
-    <Button onClick={createTask} disabled={isLoading}>
-      {isLoading ? "Creating..." : "Create Asana Task"}
+    <Button 
+      onClick={createTask} 
+      disabled={isLoading}
+      className="mt-4"
+    >
+      {isLoading ? "Creating..." : "Create Test Task"}
     </Button>
   );
 }
