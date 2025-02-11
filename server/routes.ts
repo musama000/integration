@@ -23,7 +23,12 @@ export function registerRoutes(app: Express): Server {
     clientSecret: process.env.ASANA_CLIENT_SECRET!,
     callbackURL: redirectUri,
     state: true, // Enable state parameter for CSRF protection
-  }, async (accessToken, refreshToken, _profile, done) => {
+  }, async (
+    accessToken: string,
+    refreshToken: string,
+    _profile: any,
+    done: (error: any, user?: any) => void
+  ) => {
     try {
       if (!accessToken) {
         return done(new Error("No access token received from Asana"));

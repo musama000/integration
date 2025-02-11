@@ -12,7 +12,10 @@ export function CreateAsanaTask() {
       setIsLoading(true);
       const response = await fetch("/api/tokens");
       const tokens = await response.json();
-      const asanaToken = tokens.find(t => t.provider === "asana");
+      console.log('Tokens received:', tokens); // Debug log
+
+      const asanaToken = tokens.find((t: { provider: string }) => t.provider === "asana");
+      console.log('Asana token:', asanaToken); // Debug log
 
       if (!asanaToken) {
         toast({
@@ -23,22 +26,28 @@ export function CreateAsanaTask() {
         return;
       }
 
-      const client = asana.Client.create({defaultHeaders: {'asana-enable': 'new_project_templates,new_user_task_lists'}}).useAccessToken(asanaToken.accessToken);
+      const client = asana.Client.create({
+        defaultHeaders: {'asana-enable': 'new_project_templates,new_user_task_lists'}
+      }).useAccessToken(asanaToken.accessToken);
 
       // First get the workspace
       const workspaces = await client.workspaces.getWorkspaces();
+      console.log('Workspaces:', workspaces); // Debug log
+
       if (!workspaces.data.length) {
         throw new Error("No workspaces found");
       }
       const workspaceId = workspaces.data[0].gid;
+      console.log('Using workspace:', workspaceId); // Debug log
 
       // Then create the task
-      const result = await client.tasks.createTask({
+      const result = await client.tasks.create({
         name: "New Task from Integration",
         notes: "This task was created via the integration",
         workspace: workspaceId,
         assignee: "me"
       });
+      console.log('Task created:', result); // Debug log
 
       toast({
         title: "Success",
@@ -46,6 +55,11 @@ export function CreateAsanaTask() {
       });
     } catch (error: any) {
       console.error('Asana API Error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        response: error.response
+      }); // More detailed error logging
       toast({
         title: "Error",
         description: error.message || "Failed to create task",
